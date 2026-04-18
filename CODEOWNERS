@@ -1,0 +1,10 @@
+# Global - Cross reviewers must review everything
+* @zerotheft-org/zt-cross-reviewers
+
+# Domain specific ownership
+/src/ @zerotheft-org/zt-platform @zerotheft-org/zt-cross-reviewers
+
+# Infrastructure changes need platform eyes
+/Dockerfile @zerotheft-org/zt-platform @zerotheft-org/zt-cross-reviewers
+/.github/ @zerotheft-org/zt-platform
+
