@@ -3,8 +3,14 @@ name: CI — Test, Build & Publish
 on:
   push:
     branches: [main]
+    paths:
+      - 'packages/common/**'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'packages/common/**'
+      - '.github/workflows/ci.yml'
 
 env:
   AWS_REGION: us-east-1
@@ -13,7 +19,7 @@ env:
   CODEARTIFACT_OWNER: "744561091152"
 
 jobs:
-  test-common:
+  test:
     name: Test common package
     runs-on: ubuntu-latest
     defaults:
@@ -26,27 +32,12 @@ jobs:
           python-version: "3.12"
       - run: pip install hatch
       - run: hatch env create
-      - run: hatch run pytest src/common/tests.py -v || true
-
-  test-rls:
-    name: Test RLS package (phase 1)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: packages/rls
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install hatch
-      - run: hatch env create
-      - run: hatch run pytest tests/phase1/ -v
+      - run: hatch run pytest tests/ -v
 
   build-and-publish:
     name: Build & Publish to CodeArtifact
     runs-on: ubuntu-latest
-    needs: [test-common, test-rls]
+    needs: [test]
     if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
@@ -83,18 +74,10 @@ jobs:
       - name: Install build tools
         run: pip install build twine
 
-      - name: Build common package
+      - name: Build package
         working-directory: packages/common
         run: python -m build
 
-      - name: Build RLS package
-        working-directory: packages/rls
-        run: python -m build
-
-      - name: Publish common package
+      - name: Publish package
         working-directory: packages/common
-        run: twine upload --repository codeartifact dist/*
-
-      - name: Publish RLS package
-        working-directory: packages/rls
         run: twine upload --repository codeartifact dist/*

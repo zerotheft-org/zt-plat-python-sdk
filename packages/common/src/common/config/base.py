@@ -30,6 +30,11 @@ class BaseConfig(BaseSettings):
     rabbitmq_exchange: str = "secrets"
     rabbitmq_routing_keys: list[str] = ["secret.#"] # will be per service specific
 
+    # OTel — optional, telemetry disabled if not set
+    otel_exporter_otlp_endpoint: str | None = None
+    otel_exporter_otlp_protocol: str = "grpc"
+    otel_service_name: str = "unknown-service"
+    otel_resource_attributes: str = ""
     
     # Cache TTL
     memory_ttl_seconds: int = Field(default=300)  # 5 minutes

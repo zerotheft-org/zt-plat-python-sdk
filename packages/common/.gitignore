@@ -1,0 +1,44 @@
+
+# Environment
+venv/
+venv/
+env/
+.env
+.env/
+pip-wheel-metadata/
+.Python
+build/
+develop-eggs/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.egg-info/
+.eggs/
+.ruff_cache
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# Editor/IDE specific files
+# VS Code specific files
+.vscode/        
+# IntelliJ IDEA specific files
+.idea/   
+# Vim swap files
+*.swp  
+# Backup files
+*.bak           
+# OS generated files
+# macOS
+.DS_Store    
+# Windows   
+Thumbs.db     
+# Windows  
+ehthumbs.db   
+# Windows  
+Desktop.ini 
