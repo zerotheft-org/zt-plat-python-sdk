@@ -1,0 +1,71 @@
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 100
+    send_batch_max_size: 200
+
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 200
+    spike_limit_mib: 50
+
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: development
+        action: upsert
+      - key: service.namespace
+        value: zerotheft
+        action: upsert
+
+exporters:
+  otlphttp/openobserve:
+    endpoint: "https://openobserve.dev.zerotheft.com/api/default"
+    headers:
+      Authorization: "Basic ${OPENOBSERVE_AUTH_TOKEN}"
+      stream-name: default
+    tls:
+      insecure: false
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+
+  debug:
+    verbosity: detailed
+
+service:
+  extensions: [health_check]
+
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlphttp/openobserve, debug]
+
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlphttp/openobserve, debug]
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlphttp/openobserve, debug]
+
+  telemetry:
+    logs:
+      level: debug
