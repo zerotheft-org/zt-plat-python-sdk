@@ -52,7 +52,7 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN || 'arn:aws:iam::744561091152:role/zt-github-actions-ecr-push' }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to CodeArtifact (pip)
