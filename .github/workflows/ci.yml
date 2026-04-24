@@ -76,8 +76,17 @@ jobs:
 
       - name: Build package
         working-directory: packages/common
-        run: python -m build
+        run: |
+          python -m build --wheel
+          echo "=== dist/ contents ==="
+          ls -la dist/
+          echo "=== Existing versions in CodeArtifact ==="
+          aws codeartifact list-package-versions \
+            --domain ${{ env.CODEARTIFACT_DOMAIN }} \
+            --domain-owner ${{ env.CODEARTIFACT_OWNER }} \
+            --repository ${{ env.CODEARTIFACT_REPO }} \
+            --package common --format pypi || true
 
       - name: Publish package
         working-directory: packages/common
-        run: twine upload --repository codeartifact dist/*
+        run: twine upload --repository codeartifact --verbose dist/*.whl
