@@ -14,8 +14,8 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  CODEARTIFACT_DOMAIN: zerotheft
-  CODEARTIFACT_REPO: zerotheft-python
+  CODEARTIFACT_DOMAIN: zt
+  CODEARTIFACT_REPO: zt-python
   CODEARTIFACT_OWNER: "744561091152"
 
 jobs:
