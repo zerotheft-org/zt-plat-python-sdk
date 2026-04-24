@@ -28,7 +28,7 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
-from jose import JWTError
+from jwt import InvalidTokenError
 from sqlalchemy import event
 
 from sqlalchemy import event as sa_event
@@ -87,16 +87,16 @@ def query_counter(test_engine):
 
 
 def _make_failing_verifier() -> KeycloakTokenVerifier:
-    """Stub verifier that raises JWTError (simulates invalid token)."""
+    """Stub verifier that raises InvalidTokenError (simulates invalid token)."""
     v = MagicMock(spec=KeycloakTokenVerifier)
-    v.verify.side_effect = JWTError("signature verification failed")
+    v.verify.side_effect = InvalidTokenError("signature verification failed")
     return v
 
 
 def _make_expired_verifier() -> KeycloakTokenVerifier:
-    """Stub verifier that raises JWTError (simulates expired token)."""
+    """Stub verifier that raises InvalidTokenError (simulates expired token)."""
     v = MagicMock(spec=KeycloakTokenVerifier)
-    v.verify.side_effect = JWTError("Signature has expired")
+    v.verify.side_effect = InvalidTokenError("Signature has expired")
     return v
 
 
@@ -206,7 +206,7 @@ class TestMissingJwt:
 # ---------------------------------------------------------------------------
 
 class TestInvalidJwt:
-    """Malformed Bearer token → verifier raises JWTError → 403, no DB."""
+    """Malformed Bearer token → verifier raises InvalidTokenError → 403, no DB."""
 
     def test_returns_403(self, app_no_jwt, query_counter):
         client = TestClient(app_no_jwt, raise_server_exceptions=False)
@@ -244,7 +244,7 @@ class TestInvalidJwt:
 # ---------------------------------------------------------------------------
 
 class TestExpiredJwt:
-    """Expired token → JWTError → 403, zero DB calls."""
+    """Expired token → InvalidTokenError → 403, zero DB calls."""
 
     def test_returns_403(self, app_expired_jwt, query_counter):
         client = TestClient(app_expired_jwt, raise_server_exceptions=False)

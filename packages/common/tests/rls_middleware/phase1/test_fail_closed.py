@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 
 from fastapi.testclient import TestClient
-from jose import ExpiredSignatureError, JWTError
+from jwt import ExpiredSignatureError, InvalidTokenError
 
 from tests.rls_middleware.phase1.conftest import make_app, make_verifier, make_verifier_raising
 
@@ -52,7 +52,7 @@ class TestJWTVerificationFailures:
         assert r.status_code == 403
 
     def test_invalid_signature_returns_403(self):
-        app = make_app(make_verifier_raising(JWTError("signature mismatch")))
+        app = make_app(make_verifier_raising(InvalidTokenError("signature mismatch")))
         r = TestClient(app, raise_server_exceptions=False).get(
             "/protected",
             headers={"Authorization": "Bearer forged.token"},

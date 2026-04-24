@@ -22,7 +22,7 @@ import os
 
 import httpx
 import pytest
-from jose import JWTError
+from jwt import InvalidTokenError
 
 from common.rls_middleware.infrastructure.keycloak_verifier import KeycloakTokenVerifier
 
@@ -136,7 +136,7 @@ class TestKeycloakSmoke:
             assert aud == token_audience
 
     async def test_garbage_token_raises(self, verifier):
-        """Random garbage must raise JWTError, never return claims."""
+        """Random garbage must raise InvalidTokenError, never return claims."""
         with pytest.raises(Exception):
             await verifier.verify("not.a.real.jwt")
 
