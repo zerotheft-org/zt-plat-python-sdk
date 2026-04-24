@@ -29,3 +29,4 @@ hatch run pytest tests/ -v
 ## Publishing
 
 Packages are automatically built and published to AWS CodeArtifact on merge to `main`.
+
