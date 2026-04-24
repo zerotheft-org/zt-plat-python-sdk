@@ -5,8 +5,8 @@ import os
 import time
 
 import httpx
-from jose import jwt, JWTError, ExpiredSignatureError
-from jose.exceptions import JWKError
+import jwt
+from jwt import PyJWKSet, ExpiredSignatureError, InvalidTokenError
 
 logger = logging.getLogger(__name__)
 
@@ -47,28 +47,24 @@ class KeycloakTokenVerifier:
 
     async def verify(self, token: str) -> dict:
         jwks = await self._get_jwks()
+        jwk_set = PyJWKSet(jwks["keys"])
 
         try:
             return jwt.decode(
                 token,
-                jwks,
+                jwk_set,
                 algorithms=[self._algorithm],
                 audience=self._audience,
                 issuer=self._issuer,
-                options={
-                    "verify_exp": True,
-                    "verify_iat": True,
-                    "verify_iss": True,
-                    "verify_aud": True,
-                },
             )
-        except JWKError:
+        except jwt.PyJWKSetError:
             logger.info("JWT kid not in JWKS cache — refreshing and retrying")
             self._jwks_cache = None
             jwks = await self._get_jwks()
+            jwk_set = PyJWKSet(jwks["keys"])
             return jwt.decode(
                 token,
-                jwks,
+                jwk_set,
                 algorithms=[self._algorithm],
                 audience=self._audience,
                 issuer=self._issuer,
@@ -76,7 +72,7 @@ class KeycloakTokenVerifier:
         except ExpiredSignatureError:
             logger.warning("Keycloak JWT expired")
             raise
-        except JWTError as exc:
+        except InvalidTokenError as exc:
             logger.warning("JWT verification failed: %s", exc)
             raise
 

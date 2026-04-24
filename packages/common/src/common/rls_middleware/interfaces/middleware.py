@@ -9,7 +9,7 @@ from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
-from jose import JWTError, ExpiredSignatureError
+from jwt import InvalidTokenError, ExpiredSignatureError
 
 from ..application.context import set_tenant_context, clear_tenant_context
 from ..domain.tenant_context import TenantContext
@@ -143,7 +143,7 @@ class TenantRLSMiddleware(BaseHTTPMiddleware):
             claims = await self._verifier.verify(token)
         except ExpiredSignatureError as exc:
             raise ExpiredToken(f"JWT expired: {exc}") from exc
-        except JWTError as exc:
+        except InvalidTokenError as exc:
             raise InvalidToken(f"JWT verification failed: {exc}") from exc
 
         admin_target = request.headers.get("X-Admin-Target-Tenant")
